@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Texas A&M Custom WebGIS Map</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+
+// Create map centered on Texas A&M University
+var map = L.map('map').setView([30.618, -96.34], 16);
+
+// Add Esri map tiles
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19,
+    attribution: 'Tiles &copy; Esri'
+}).addTo(map);
+
+
+// LOCATE FUNCTION
+function locateUser() {
+    map.locate({
+        setView: true,
+        maxZoom: 16
+    });
+}
+
+map.on('locationfound', function(e) {
+    L.marker(e.latlng).addTo(map)
+        .bindPopup("Your location")
+        .openPopup();
+
+    L.circle(e.latlng, {
+        radius: e.accuracy
+    }).addTo(map);
+});
+
+map.on('locationerror', function(e) {
+    alert("Unable to find your location: " + e.message);
+});
+
+
+// KYLE FIELD CIRCLE AND POPUP
+var kyleField = [30.6102, -96.3404];
+
+L.circle(kyleField, {
+    color: 'red',
+    fillColor: '#f03',
+    fillOpacity: 0.4,
+    radius: 200
+}).addTo(map)
+.bindPopup("Kyle Field - Texas A&M University");
+
+
+// CUSTOM ICON FOR O&M BUILDING
+var omIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+L.marker([30.61765, -96.3375], {
+    icon: omIcon
+}).addTo(map)
+.bindPopup("O&M Building");
+
+
+// CUSTOM ICON FOR ACADEMIC BUILDING
+var academicIcon = L.icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+L.marker([30.61576, -96.34079], {
+    icon: academicIcon
+}).addTo(map)
+.bindPopup("Academic Building");
+
+
+// MAP CLICK EVENT - DISPLAY COORDINATES
+map.on('click', function(e) {
+    L.popup()
+        .setLatLng(e.latlng)
+        .setContent("Latitude: " + e.latlng.lat.toFixed(5) +
+                   "<br>Longitude: " + e.latlng.lng.toFixed(5))
+        .openOn(map);
+});
+
+
+// Add a button to run the locate function
+var locateButton = L.control({position: 'topright'});
+
+locateButton.onAdd = function(map) {
+    var button = L.DomUtil.create('button', 'locate-button');
+    button.innerHTML = 'Locate Me';
+
+    button.style.padding = '8px';
+    button.style.margin = '10px';
+    button.style.cursor = 'pointer';
+
+    button.onclick = function() {
+        locateUser();
+    };
+
+    return button;
+};
+
+locateButton.addTo(map);
+
+</script>
+
+</body>
+</html>
