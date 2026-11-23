@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaflet on Mobile</title>
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html, body, #map {
+            height: 100%;
+            width: 100vw;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+
+        // Initialize the map showing the whole world
+        var map = L.map('map').fitWorld();
+
+        // Add Esri map tiles
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+            maxZoom: 19,
+            attribution: 'Tiles &copy; Esri'
+        }).addTo(map);
+
+        // Function for when location is found
+        function onLocationFound(e) {
+            var radius = e.accuracy;
+
+            L.marker(e.latlng).addTo(map)
+                .bindPopup("You are within " + radius +
+                " meters from this point")
+                .openPopup();
+
+            L.circle(e.latlng, {
+                radius: radius
+            }).addTo(map);
+        }
+
+        // Function for location errors
+        function onLocationError(e) {
+            alert(e.message);
+        }
+
+        // Listen for location events
+        map.on('locationfound', onLocationFound);
+        map.on('locationerror', onLocationError);
+
+        // Request the user's location
+        map.locate({
+            setView: true,
+            maxZoom: 16
+        });
+
+    </script>
+
+</body>
+</html>
